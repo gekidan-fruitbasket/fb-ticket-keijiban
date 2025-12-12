@@ -1192,21 +1192,7 @@
                         </button>
                     </div>
 
-                    <!-- Confirm Modal -->
-                    <div class="modal-overlay" v-if="showConfirmModal" @click="showConfirmModal = false">
-                        <div class="modal" @click.stop>
-                            <h3 class="modal-title">確認</h3>
-                            <div class="modal-desc" style="margin-bottom: 24px;">
-                                {{ confirmModalMessage }}
-                            </div>
-                            <div class="modal-actions">
-                                <button class="btn btn-outline" @click="showConfirmModal = false">キャンセル</button>
-                                <button class="btn btn-primary" @click="executeConfirmAction" :disabled="submitting">
-                                    {{ submitting ? '処理中...' : 'OK' }}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+
 
                     <div class="section">
                         <div class="section-title">交換したい投稿</div>
@@ -1627,6 +1613,22 @@
                 style="background: #e9ecef; color: var(--text-muted);">
                 キャンセル
             </button>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="modal-overlay" v-if="showConfirmModal" @click="showConfirmModal = false">
+        <div class="modal" @click.stop>
+            <h3 class="modal-title">確認</h3>
+            <div class="modal-desc" style="margin-bottom: 24px;">
+                {{ confirmModalMessage }}
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" @click="showConfirmModal = false">キャンセル</button>
+                <button class="btn btn-primary" @click="executeConfirmAction" :disabled="submitting">
+                    {{ submitting ? '処理中...' : 'OK' }}
+                </button>
+            </div>
         </div>
     </div>
 

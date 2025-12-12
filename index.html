@@ -1668,24 +1668,7 @@
                 // フィルタリング
                 const filterDate = ref(''); // 空文字は「全日程」
 
-                // 絞り込みロジック
-                const filteredExchanges = computed(() => {
-                    if (!filterDate.value) return exchanges.value;
-                    return exchanges.value.filter(ex => {
-                        // 出すチケットの日付 or 欲しいチケットの日付にマッチするか
-                        // リスト表示で重要なのは「どちらか」だけど、基本は「自分が探してる日付」で絞り込みたいはず
-                        // 交換したい一覧を見る人 = 「欲しいチケット」を探してる人 = 相手が「出すチケット」の日付で絞り込むべき
-                        return ex.offerDate.includes(filterDate.value);
-                    });
-                });
-
-                const filteredRequests = computed(() => {
-                    if (!filterDate.value) return requests.value;
-                    return requests.value.filter(req => {
-                        // 探しています一覧を見る人 = 「余ってるチケット」を譲りたい人 = 相手が「欲しいチケット」の日付で絞り込むべき
-                        return req.desiredDates.includes(filterDate.value);
-                    });
-                });
+                // 絞り込みロジック（データ定義後に移動）
 
                 // スクロール位置管理
                 const homeScrollPosition = ref(0);
@@ -1736,6 +1719,21 @@
                 const requests = ref([]);
                 const myExchanges = ref([]);
                 const myRequests = ref([]);
+
+                // 絞り込みロジック
+                const filteredExchanges = computed(() => {
+                    if (!filterDate.value) return exchanges.value;
+                    return exchanges.value.filter(ex => {
+                        return ex.offerDate.includes(filterDate.value);
+                    });
+                });
+
+                const filteredRequests = computed(() => {
+                    if (!filterDate.value) return requests.value;
+                    return requests.value.filter(req => {
+                        return req.desiredDates.includes(filterDate.value);
+                    });
+                });
 
                 // Comments
                 const allComments = ref([]);
@@ -2067,6 +2065,9 @@
                     activeTab,
                     submitting,
                     toast,
+                    filterDate,
+                    filteredExchanges,
+                    filteredRequests,
                     showDates,
                     exchanges,
                     requests,

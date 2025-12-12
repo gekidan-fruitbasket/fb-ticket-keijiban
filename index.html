@@ -996,14 +996,29 @@
                     </div>
                 </div>
 
+                <!-- フィルタリング（マイページ以外） -->
+                <div class="filter-section" v-if="activeTab !== 'mypage'" style="margin-bottom: 16px;">
+                    <div style="position: relative;">
+                        <select v-model="filterDate"
+                            style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--card-border); background: var(--card-bg); font-size: 14px; appearance: none; -webkit-appearance: none;">
+                            <option value="">📅 日付で絞り込み：全日程</option>
+                            <option v-for="date in showDates" :key="date.id" :value="date.label">
+                                {{ date.label }}
+                            </option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down"
+                            style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;"></i>
+                    </div>
+                </div>
+
                 <!-- 交換したい一覧 -->
                 <div v-if="activeTab === 'exchanges'">
-                    <div v-if="exchanges.length === 0" class="empty">
+                    <div v-if="filteredExchanges.length === 0" class="empty">
                         <div class="empty-icon"><i class="fa-solid fa-exchange-alt"></i></div>
-                        <p>まだ投稿がありません</p>
+                        <p>{{ exchanges.length === 0 ? 'まだ投稿がありません' : '条件に一致する投稿がありません' }}</p>
                     </div>
                     <div v-else>
-                        <div class="card" v-for="ex in exchanges" :key="ex.id">
+                        <div class="card" v-for="ex in filteredExchanges" :key="ex.id">
                             <div class="card-header">
                                 <span class="card-user">{{ ex.displayName }}</span>
                             </div>
@@ -1077,12 +1092,12 @@
 
                 <!-- 探しています一覧 -->
                 <div v-if="activeTab === 'requests'">
-                    <div v-if="requests.length === 0" class="empty">
+                    <div v-if="filteredRequests.length === 0" class="empty">
                         <div class="empty-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
-                        <p>まだ投稿がありません</p>
+                        <p>{{ requests.length === 0 ? 'まだ投稿がありません' : '条件に一致する投稿がありません' }}</p>
                     </div>
                     <div v-else>
-                        <div class="card" v-for="req in requests" :key="req.id">
+                        <div class="card" v-for="req in filteredRequests" :key="req.id">
                             <div class="card-header">
                                 <span class="card-user">{{ req.displayName }}</span>
                             </div>
@@ -1639,7 +1654,7 @@
         console.log(`[ENV] Running in ${CURRENT_ENV} mode`);
 
 
-        const { createApp, ref, onMounted, watch, nextTick } = Vue;
+        const { createApp, ref, onMounted, watch, nextTick, computed } = Vue;
 
         createApp({
             setup() {
@@ -1649,6 +1664,28 @@
                 const activeTab = ref('exchanges');
                 const submitting = ref(false);
                 const toast = ref('');
+
+                // フィルタリング
+                const filterDate = ref(''); // 空文字は「全日程」
+
+                // 絞り込みロジック
+                const filteredExchanges = computed(() => {
+                    if (!filterDate.value) return exchanges.value;
+                    return exchanges.value.filter(ex => {
+                        // 出すチケットの日付 or 欲しいチケットの日付にマッチするか
+                        // リスト表示で重要なのは「どちらか」だけど、基本は「自分が探してる日付」で絞り込みたいはず
+                        // 交換したい一覧を見る人 = 「欲しいチケット」を探してる人 = 相手が「出すチケット」の日付で絞り込むべき
+                        return ex.offerDate.includes(filterDate.value);
+                    });
+                });
+
+                const filteredRequests = computed(() => {
+                    if (!filterDate.value) return requests.value;
+                    return requests.value.filter(req => {
+                        // 探しています一覧を見る人 = 「余ってるチケット」を譲りたい人 = 相手が「欲しいチケット」の日付で絞り込むべき
+                        return req.desiredDates.includes(filterDate.value);
+                    });
+                });
 
                 // スクロール位置管理
                 const homeScrollPosition = ref(0);
@@ -1759,6 +1796,10 @@
                         myExchanges.value = allData.myExchanges || [];
                         myRequests.value = allData.myRequests || [];
                         allComments.value = allData.allComments || [];
+
+                        if (allData.showInfo && allData.showInfo.dates) {
+                            showDates.value = allData.showInfo.dates;
+                        }
 
                         // コメント読み込み完了
                         commentsLoaded.value = true;

@@ -1622,6 +1622,43 @@
             <h3 class="modal-title">確認</h3>
             <div class="modal-desc" style="margin-bottom: 24px;">
                 {{ confirmModalMessage }}
+
+                <div v-if="pendingConfirmAction && pendingConfirmAction.action === 'post_submit'"
+                    style="margin-top: 16px; background: #f8f9fa; padding: 16px; border-radius: 12px; text-align: left; font-size: 14px;">
+
+                    <template v-if="pendingConfirmAction.type === 'exchange'">
+                        <div style="margin-bottom: 8px;"><strong
+                                style="color: var(--text-muted); font-size: 12px;">提供</strong><br>{{
+                            exchangeForm.offerDate }}</div>
+                        <div style="margin-bottom: 8px;"><strong
+                                style="color: var(--text-muted); font-size: 12px;">希望</strong><br>{{
+                            exchangeForm.wantDate }}</div>
+                        <div style="margin-bottom: 8px;"><strong
+                                style="color: var(--text-muted); font-size: 12px;">枚数</strong><br>{{
+                            exchangeForm.quantity }}枚</div>
+                        <div style="margin-bottom: 8px;"><strong
+                                style="color: var(--text-muted); font-size: 12px;">座席</strong><br>{{
+                            exchangeForm.seatType }}</div>
+                        <div v-if="exchangeForm.comment"><strong
+                                style="color: var(--text-muted); font-size: 12px;">コメント</strong><br>{{
+                            exchangeForm.comment }}</div>
+                    </template>
+
+                    <template v-else>
+                        <div style="margin-bottom: 8px;"><strong
+                                style="color: var(--text-muted); font-size: 12px;">希望</strong><br>{{
+                            requestForm.desiredDate }}</div>
+                        <div style="margin-bottom: 8px;"><strong
+                                style="color: var(--text-muted); font-size: 12px;">枚数</strong><br>{{
+                            requestForm.quantity }}枚</div>
+                        <div style="margin-bottom: 8px;"><strong
+                                style="color: var(--text-muted); font-size: 12px;">座席</strong><br>{{
+                            requestForm.seatType }}</div>
+                        <div v-if="requestForm.comment"><strong
+                                style="color: var(--text-muted); font-size: 12px;">コメント</strong><br>{{
+                            requestForm.comment }}</div>
+                    </template>
+                </div>
             </div>
             <div class="modal-actions">
                 <button class="btn btn-outline" @click="showConfirmModal = false">キャンセル</button>
@@ -1974,7 +2011,7 @@
                     pendingConfirmAction.value = { type, action, postId };
 
                     if (action === 'post_submit') {
-                        confirmModalMessage.value = 'この内容で投稿しますか？';
+                        confirmModalMessage.value = '以下の内容で投稿しますか？';
                     } else {
                         confirmModalMessage.value = action === 'cancel'
                             ? 'この投稿を取り消しますか？'

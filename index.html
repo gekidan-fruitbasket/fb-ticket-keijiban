@@ -1235,7 +1235,7 @@
                                     :disabled="processingPostId === ex.id">
                                     {{ processingPostId === ex.id && processingAction === 'cancel' ? '処理中...' : '取消' }}
                                 </button>
-                                <button class="btn btn-small btn-success"
+                                <button class="btn btn-small btn-primary"
                                     @click="confirmAction('exchange', 'complete', ex.id)" v-if="ex.status === '募集中'"
                                     :disabled="processingPostId === ex.id">
                                     {{ processingPostId === ex.id && processingAction === 'complete' ? '処理中...' : '成立'
@@ -1318,7 +1318,7 @@
                                     :disabled="processingPostId === req.id">
                                     {{ processingPostId === req.id && processingAction === 'cancel' ? '処理中...' : '取消' }}
                                 </button>
-                                <button class="btn btn-small btn-success"
+                                <button class="btn btn-small btn-primary"
                                     @click="confirmAction('request', 'complete', req.id)" v-if="req.status === '募集中'"
                                     :disabled="processingPostId === req.id">
                                     {{ processingPostId === req.id && processingAction === 'complete' ? '処理中...' : '成立'

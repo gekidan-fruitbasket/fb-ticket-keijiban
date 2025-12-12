@@ -1469,7 +1469,7 @@
     <!-- 利用ガイド・規約ページ -->
     <template v-if="currentPage === 'guide'">
         <div class="sub-header">
-            <button class="back-btn" @click="currentPage = 'home'; window.scrollTo(0, 0);">
+            <button class="back-btn" @click="currentPage = 'home'">
                 <i class="fa-solid fa-chevron-left"></i>
             </button>
             <div class="sub-header-title">利用ガイド・規約</div>
@@ -1514,8 +1514,7 @@
                 <p>悪質なコメントや不適切と判断された投稿は、運営（劇団）の判断により予告なく削除する場合があります。</p>
             </div>
 
-            <button class="btn btn-outline" @click="currentPage = 'home'; window.scrollTo(0, 0);"
-                style="width: 100%; margin-top: 24px;">
+            <button class="btn btn-outline" @click="currentPage = 'home'" style="width: 100%; margin-top: 24px;">
                 閉じる
             </button>
         </div>
@@ -1632,7 +1631,7 @@
         console.log(`[ENV] Running in ${CURRENT_ENV} mode`);
 
 
-        const { createApp, ref, onMounted } = Vue;
+        const { createApp, ref, onMounted, watch, nextTick } = Vue;
 
         createApp({
             setup() {
@@ -1642,6 +1641,27 @@
                 const activeTab = ref('exchanges');
                 const submitting = ref(false);
                 const toast = ref('');
+
+                // スクロール位置管理
+                const homeScrollPosition = ref(0);
+
+                // ページ遷移時のスクロール制御
+                watch(currentPage, async (newPage, oldPage) => {
+                    if (oldPage === 'home') {
+                        // ホームから移動する時、位置を保存
+                        homeScrollPosition.value = window.scrollY;
+                        // 新しいページはトップから表示
+                        window.scrollTo(0, 0);
+                    } else if (newPage === 'home') {
+                        // ホームに戻る時、位置を復元
+                        // DOM更新を待ってからスクロール
+                        await nextTick();
+                        window.scrollTo(0, homeScrollPosition.value);
+                    } else {
+                        // その他の遷移（guide内で戻るなど）はトップへ
+                        window.scrollTo(0, 0);
+                    }
+                });
 
                 // User
                 const userId = ref('');

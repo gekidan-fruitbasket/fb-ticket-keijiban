@@ -1469,7 +1469,7 @@
     <!-- 利用ガイド・規約ページ -->
     <template v-if="currentPage === 'guide'">
         <div class="sub-header">
-            <button class="back-btn" @click="currentPage = 'home'">
+            <button class="back-btn" @click="currentPage = 'home'; window.scrollTo(0, 0);">
                 <i class="fa-solid fa-chevron-left"></i>
             </button>
             <div class="sub-header-title">利用ガイド・規約</div>
@@ -1514,7 +1514,8 @@
                 <p>悪質なコメントや不適切と判断された投稿は、運営（劇団）の判断により予告なく削除する場合があります。</p>
             </div>
 
-            <button class="btn btn-outline" @click="currentPage = 'home'" style="width: 100%; margin-top: 24px;">
+            <button class="btn btn-outline" @click="currentPage = 'home'; window.scrollTo(0, 0);"
+                style="width: 100%; margin-top: 24px;">
                 閉じる
             </button>
         </div>

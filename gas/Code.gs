@@ -537,17 +537,143 @@ function sendCommentNotifications(postId, postType, commenterUserId, commenterNa
   // ディープリンクURL（マイページへ直接飛ぶ）
   const deepLink = `${LIFF_URL}?page=mypage`;
   
+  // コメント内容を短縮
+  const shortComment = commentContent.substring(0, 50) + (commentContent.length > 50 ? '...' : '');
+  
   // 投稿者に通知（自分自身へのコメントでなければ）
   if (postOwnerUserId && postOwnerUserId !== commenterUserId) {
-    const message = `【チケット掲示板からのお知らせ】\n\n${commenterName}さんがあなたの投稿にコメントしました。\n\n「${commentContent.substring(0, 50)}${commentContent.length > 50 ? '...' : ''}」\n\n確認する:\n${deepLink}`;
-    sendLineMessage(postOwnerUserId, message);
+    sendFlexMessage(postOwnerUserId, {
+      title: 'あなたの投稿にコメント',
+      body: `${commenterName}さんがコメントしました`,
+      comment: shortComment,
+      buttonText: '確認する',
+      buttonUrl: deepLink
+    });
   }
   
   // 過去のコメント主にも通知
   previousCommenters.forEach(userId => {
-    const message = `【チケット掲示板からのお知らせ】\n\n${commenterName}さんが投稿に返信しました。\n\n「${commentContent.substring(0, 50)}${commentContent.length > 50 ? '...' : ''}」\n\n確認する:\n${deepLink}`;
-    sendLineMessage(userId, message);
+    sendFlexMessage(userId, {
+      title: '投稿に返信がありました',
+      body: `${commenterName}さんが返信しました`,
+      comment: shortComment,
+      buttonText: '確認する',
+      buttonUrl: deepLink
+    });
   });
+}
+
+// フレックスメッセージを送信
+function sendFlexMessage(userId, options) {
+  if (!LINE_CHANNEL_ACCESS_TOKEN || !userId || !LIFF_URL) return;
+  
+  const { title, body, comment, buttonText, buttonUrl } = options;
+  
+  const flexContent = {
+    type: 'bubble',
+    size: 'kilo',
+    header: {
+      type: 'box',
+      layout: 'vertical',
+      contents: [
+        {
+          type: 'text',
+          text: 'チケット掲示板',
+          weight: 'bold',
+          color: '#00AEAC',
+          size: 'sm'
+        }
+      ],
+      paddingAll: '12px',
+      backgroundColor: '#F5F5F5'
+    },
+    body: {
+      type: 'box',
+      layout: 'vertical',
+      contents: [
+        {
+          type: 'text',
+          text: title,
+          weight: 'bold',
+          size: 'md',
+          wrap: true
+        },
+        {
+          type: 'text',
+          text: body,
+          size: 'sm',
+          color: '#666666',
+          margin: 'md',
+          wrap: true
+        },
+        {
+          type: 'box',
+          layout: 'vertical',
+          contents: [
+            {
+              type: 'text',
+              text: `「${comment}」`,
+              size: 'sm',
+              color: '#333333',
+              wrap: true
+            }
+          ],
+          backgroundColor: '#F9F9F9',
+          paddingAll: '10px',
+          cornerRadius: '8px',
+          margin: 'md'
+        }
+      ],
+      paddingAll: '16px'
+    },
+    footer: {
+      type: 'box',
+      layout: 'vertical',
+      contents: [
+        {
+          type: 'button',
+          action: {
+            type: 'uri',
+            label: buttonText,
+            uri: buttonUrl
+          },
+          style: 'primary',
+          color: '#00AEAC',
+          height: 'sm'
+        }
+      ],
+      paddingAll: '12px'
+    }
+  };
+  
+  const url = 'https://api.line.me/v2/bot/message/push';
+  const payload = {
+    to: userId,
+    messages: [
+      {
+        type: 'flex',
+        altText: `${title}: ${body}`,
+        contents: flexContent
+      }
+    ]
+  };
+  
+  const requestOptions = {
+    method: 'post',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + LINE_CHANNEL_ACCESS_TOKEN
+    },
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  };
+  
+  try {
+    const response = UrlFetchApp.fetch(url, requestOptions);
+    console.log('Flex message sent:', response.getContentText());
+  } catch (e) {
+    console.error('Flex message error:', e);
+  }
 }
 
 // LINE Messaging APIでプッシュ通知を送信
@@ -602,7 +728,7 @@ function testNotification() {
   console.log('テスト通知を送信しました');
 }
 
-// 新しいフォーマットの通知をテスト（マイページへのディープリンク）
+// 新しいフォーマットの通知をテスト（フレックスメッセージ）
 // ⚠️ 実行前に TEST_USER_ID を自分のLINE User IDに変更してください
 function testNewNotificationFormat() {
   // ========================================
@@ -619,20 +745,19 @@ function testNewNotificationFormat() {
   
   const deepLink = `${LIFF_URL}?page=mypage`;
   
-  const message = `【チケット掲示板からのお知らせ】
-
-テストさんがあなたの投稿にコメントしました。
-
-「これはテストメッセージです。リンクをタップして、マイページが開くか確認してください。」
-
-確認する:
-${deepLink}`;
-
   console.log('通知送信先:', TEST_USER_ID);
-  console.log('メッセージ:\n', message);
+  console.log('ディープリンク:', deepLink);
   
-  sendLineMessage(TEST_USER_ID, message);
-  console.log('新フォーマットのテスト通知を送信しました');
+  // フレックスメッセージをテスト送信
+  sendFlexMessage(TEST_USER_ID, {
+    title: 'あなたの投稿にコメント',
+    body: 'テストさんがコメントしました',
+    comment: 'これはテストメッセージです。フレックスメッセージが正しく表示されているか確認してください。',
+    buttonText: '確認する',
+    buttonUrl: deepLink
+  });
+  
+  console.log('フレックスメッセージのテスト通知を送信しました');
 }
 
 // ==================== ユーザー管理 ====================

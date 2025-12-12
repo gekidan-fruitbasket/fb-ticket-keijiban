@@ -997,11 +997,13 @@
                 </div>
 
                 <!-- フィルタリング（マイページ以外） -->
-                <div class="filter-section" v-if="activeTab !== 'mypage'" style="margin-bottom: 16px;">
+                <div class="filter-section" v-if="activeTab !== 'mypage'" style="margin-bottom: 20px;">
+                    <label
+                        style="display: block; font-size: 13px; font-weight: 500; color: var(--text-muted); margin-bottom: 8px;">日程で絞り込み</label>
                     <div style="position: relative;">
                         <select v-model="filterDate"
                             style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--card-border); background: var(--card-bg); font-size: 14px; appearance: none; -webkit-appearance: none;">
-                            <option value="">📅 日付で絞り込み：全日程</option>
+                            <option value="">全日程</option>
                             <option v-for="date in showDates" :key="date.id" :value="date.label">
                                 {{ date.label }}
                             </option>

@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.2.3] - 2025-12-12
+
+### Changed
+- **ヘッダーレイアウト変更**: ロゴを左端、タイトルを中央、インフォアイコンを右端に配置するレイアウトに変更
+
 ## [v1.2.2] - 2025-12-12
 
 ### Fixed

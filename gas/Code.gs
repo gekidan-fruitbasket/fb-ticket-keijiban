@@ -11,8 +11,10 @@
  */
 
 // ==================== 設定 ====================
-const SPREADSHEET_ID = '1gGAz_brFRcHlpO8f94xtpdsnMM3SvO_HN4rboJ5NFUI'; // スプレッドシートIDを設定
-const LINE_CHANNEL_ACCESS_TOKEN = PropertiesService.getScriptProperties().getProperty('LINE_CHANNEL_ACCESS_TOKEN') || ''; // GASのスクリプトプロパティから取得
+// 全てスクリプトプロパティから取得（開発用・本番用でコード共通化）
+const SPREADSHEET_ID = PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID') || '';
+const LINE_CHANNEL_ACCESS_TOKEN = PropertiesService.getScriptProperties().getProperty('LINE_CHANNEL_ACCESS_TOKEN') || '';
+const LIFF_URL = PropertiesService.getScriptProperties().getProperty('LIFF_URL') || '';
 
 // 公演情報
 const SHOW_NAME = '人魚姫ー泡沫《うたかた》の龍宮城ー';
@@ -501,8 +503,6 @@ function postComment(data) {
 }
 
 // ==================== コメント通知 ====================
-// LIFF URL（環境に応じて変更が必要）
-const LIFF_URL = 'https://liff.line.me/2008683013-LVHYVRa1'; // 本番用LIFF URL
 
 function sendCommentNotifications(postId, postType, commenterUserId, commenterName, commentContent) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
@@ -534,8 +534,8 @@ function sendCommentNotifications(postId, postType, commenterUserId, commenterNa
     }
   }
   
-  // ディープリンクURL
-  const deepLink = `${LIFF_URL}?postId=${postId}&postType=${postType}`;
+  // ディープリンクURL（マイページへ直接飛ぶ）
+  const deepLink = `${LIFF_URL}?page=mypage`;
   
   // 投稿者に通知（自分自身へのコメントでなければ）
   if (postOwnerUserId && postOwnerUserId !== commenterUserId) {
@@ -587,7 +587,7 @@ function sendLineMessage(userId, message) {
 function testNotification() {
   // スプレッドシートから最初のユーザーIDを取得
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  const sheet = ss.getSheetByName(SHEET_OFFERS);
+  const sheet = ss.getSheetByName(SHEET_EXCHANGES);
   const data = sheet.getDataRange().getValues();
   
   if (data.length <= 1) {
@@ -598,8 +598,41 @@ function testNotification() {
   const testUserId = data[1][1]; // 最初の投稿者のuserId
   console.log('通知送信先:', testUserId);
   
-  sendLineMessage(testUserId, '🎉 通知テスト成功！\n\nこのメッセージが届いていれば、コメント通知も動作します。');
+  sendLineMessage(testUserId, '通知テスト成功！\n\nこのメッセージが届いていれば、通知機能が動作しています。');
   console.log('テスト通知を送信しました');
+}
+
+// 新しいフォーマットの通知をテスト（マイページへのディープリンク）
+// ⚠️ 実行前に TEST_USER_ID を自分のLINE User IDに変更してください
+function testNewNotificationFormat() {
+  // ========================================
+  // ここに自分のLINE User IDを入れる（Uから始まる文字列）
+  // ユーザーシートのA列で確認できます
+  const TEST_USER_ID = 'ここにあなたのLINE_USER_IDを入れてください';
+  // ========================================
+  
+  if (TEST_USER_ID === 'ここにあなたのLINE_USER_IDを入れてください') {
+    console.log('⚠️ TEST_USER_IDを設定してください！');
+    console.log('ユーザーシートのA列から自分のLINE User IDをコピーして設定してください。');
+    return;
+  }
+  
+  const deepLink = `${LIFF_URL}?page=mypage`;
+  
+  const message = `【チケット掲示板からのお知らせ】
+
+テストさんがあなたの投稿にコメントしました。
+
+「これはテストメッセージです。リンクをタップして、マイページが開くか確認してください。」
+
+確認する:
+${deepLink}`;
+
+  console.log('通知送信先:', TEST_USER_ID);
+  console.log('メッセージ:\n', message);
+  
+  sendLineMessage(TEST_USER_ID, message);
+  console.log('新フォーマットのテスト通知を送信しました');
 }
 
 // ==================== ユーザー管理 ====================

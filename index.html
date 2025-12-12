@@ -1768,25 +1768,11 @@
                 // ディープリンク処理（通知からの直接アクセス）
                 const handleDeepLink = () => {
                     const urlParams = new URLSearchParams(window.location.search);
-                    const postId = urlParams.get('postId');
-                    const postType = urlParams.get('postType');
+                    const page = urlParams.get('page');
 
-                    if (postId && postType) {
-                        console.log(`[DeepLink] Opening post: ${postType}/${postId}`);
-
-                        // 投稿タイプに応じてタブを切り替え
-                        if (postType === 'exchange' || postType === 'offer') {
-                            activeTab.value = 'exchanges';
-                        } else if (postType === 'request') {
-                            activeTab.value = 'requests';
-                        }
-
-                        // 少し待ってからコメント欄を開く
-                        setTimeout(() => {
-                            const normalizedType = postType === 'offer' ? 'exchange' : postType;
-                            toggleComments(postId, normalizedType);
-                        }, 500);
-
+                    if (page === 'mypage') {
+                        console.log('[DeepLink] Opening My Page');
+                        currentPage.value = 'mypage';
                         // URLパラメータをクリア（履歴を汚さない）
                         window.history.replaceState({}, document.title, window.location.pathname);
                     }

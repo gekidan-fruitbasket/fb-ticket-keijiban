@@ -1718,51 +1718,21 @@
 
                 const loadData = async () => {
                     try {
-                        const [exchangesRes, requestsRes, myPostsRes] = await Promise.all([
-                            callApi('getExchanges'),
-                            callApi('getRequests'),
-                            callApi('getMyPosts', { userId: userId.value })
-                        ]);
+                        // 一括でデータ取得（パフォーマンス最適化）
+                        const allData = await callApi('getAllData', { userId: userId.value });
 
-                        exchanges.value = exchangesRes;
-                        requests.value = requestsRes;
-                        myExchanges.value = myPostsRes.exchanges || [];
-                        myRequests.value = myPostsRes.requests || [];
+                        exchanges.value = allData.exchanges || [];
+                        requests.value = allData.requests || [];
+                        myExchanges.value = allData.myExchanges || [];
+                        myRequests.value = allData.myRequests || [];
+                        allComments.value = allData.allComments || [];
 
-                        // コメントをバックグラウンドで取得
-                        loadAllComments(exchangesRes, requestsRes);
+                        // コメント読み込み完了
+                        commentsLoaded.value = true;
                     } catch (e) {
                         console.error('データ取得エラー:', e);
                     }
                     loading.value = false;
-                };
-
-                // 全投稿のコメントを取得
-                const loadAllComments = async (exchangesList, requestsList) => {
-                    try {
-                        // 全投稿のコメントを並列取得
-                        const commentPromises = [];
-
-                        exchangesList.forEach(ex => {
-                            commentPromises.push(
-                                callApi('getComments', { postId: ex.id, postType: 'exchange' })
-                            );
-                        });
-
-                        requestsList.forEach(req => {
-                            commentPromises.push(
-                                callApi('getComments', { postId: req.id, postType: 'request' })
-                            );
-                        });
-
-                        const allResults = await Promise.all(commentPromises);
-
-                        // 全コメントをマージ
-                        allComments.value = allResults.flat();
-                    } catch (e) {
-                        console.error('コメント取得エラー:', e);
-                    }
-                    commentsLoaded.value = true;
                 };
 
 

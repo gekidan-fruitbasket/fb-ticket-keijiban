@@ -158,6 +158,9 @@ function handleRequest(e) {
           content: decodeURIComponent(params.content || '')
         });
         break;
+      case 'getAllData':
+        result = getAllData(params.userId);
+        break;
       default:
         result = { error: 'Unknown action' };
     }
@@ -270,6 +273,111 @@ function getMyPosts(userId) {
   }
   
   return { exchanges: myExchanges, requests: myRequests };
+}
+
+// 一括データ取得（パフォーマンス最適化）
+function getAllData(userId) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  
+  // 全シートのデータを1回のopenByIdで取得
+  const exchangesSheet = ss.getSheetByName(SHEET_EXCHANGES);
+  const requestsSheet = ss.getSheetByName(SHEET_REQUESTS);
+  const commentsSheet = ss.getSheetByName(SHEET_COMMENTS);
+  
+  // 交換したい（募集中のみ）
+  const exchanges = [];
+  const myExchanges = [];
+  if (exchangesSheet) {
+    const exchangesData = exchangesSheet.getDataRange().getValues();
+    for (let i = 1; i < exchangesData.length; i++) {
+      const row = exchangesData[i];
+      if (row[8] === '募集中') {
+        exchanges.push({
+          id: row[0],
+          userId: row[1],
+          displayName: row[2],
+          offerDate: row[3],
+          wantDates: row[4],
+          seatType: row[5],
+          quantity: row[6],
+          comment: row[7],
+          status: row[8],
+          createdAt: row[9]
+        });
+      }
+      // マイページ用（取消以外）
+      if (userId && row[1] === userId && row[8] !== '取消') {
+        myExchanges.push({
+          id: row[0],
+          offerDate: row[3],
+          wantDates: row[4],
+          seatType: row[5],
+          quantity: row[6],
+          status: row[8]
+        });
+      }
+    }
+  }
+  
+  // 探しています（募集中のみ）
+  const requests = [];
+  const myRequests = [];
+  if (requestsSheet) {
+    const requestsData = requestsSheet.getDataRange().getValues();
+    for (let i = 1; i < requestsData.length; i++) {
+      const row = requestsData[i];
+      if (row[7] === '募集中') {
+        requests.push({
+          id: row[0],
+          userId: row[1],
+          displayName: row[2],
+          desiredDates: row[3],
+          quantity: row[4],
+          seatType: row[5],
+          comment: row[6],
+          status: row[7],
+          createdAt: row[8]
+        });
+      }
+      // マイページ用（取消以外）
+      if (userId && row[1] === userId && row[7] !== '取消') {
+        myRequests.push({
+          id: row[0],
+          desiredDates: row[3],
+          quantity: row[4],
+          seatType: row[5],
+          status: row[7]
+        });
+      }
+    }
+  }
+  
+  // 全コメント
+  const allComments = [];
+  if (commentsSheet) {
+    const commentsData = commentsSheet.getDataRange().getValues();
+    for (let i = 1; i < commentsData.length; i++) {
+      const row = commentsData[i];
+      allComments.push({
+        id: row[0],
+        postId: row[1],
+        postType: row[2],
+        userId: row[3],
+        displayName: row[4],
+        content: row[5],
+        createdAt: row[6]
+      });
+    }
+  }
+  
+  return {
+    exchanges: exchanges.reverse(),
+    requests: requests.reverse(),
+    myExchanges: myExchanges,
+    myRequests: myRequests,
+    allComments: allComments,
+    showInfo: { showName: SHOW_NAME, dates: SHOW_DATES }
+  };
 }
 
 // ==================== データ投稿 ====================

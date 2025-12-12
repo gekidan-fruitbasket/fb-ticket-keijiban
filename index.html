@@ -1219,24 +1219,32 @@
                                     ? getCommentCount(ex.id, 'exchange') + '件のコメント' : 'コメントする' }}
                                 </div>
                                 <div class="comments-list" v-if="expandedComments[ex.id + '_exchange']">
-                                    <div v-if="getCommentsForPost(ex.id, 'exchange').length === 0" class="no-comments">
-                                        まだコメントはありません</div>
-                                    <div v-else class="comment-item"
-                                        v-for="comment in getCommentsForPost(ex.id, 'exchange')" :key="comment.id">
-                                        <div class="comment-header">
-                                            <span class="comment-author">{{ comment.displayName }}</span>
-                                            <span class="comment-time">{{ formatTime(comment.createdAt) }}</span>
+                                    <!-- ローディング表示 -->
+                                    <div v-if="commentLoading[ex.id + '_exchange']" class="comment-loading">
+                                        <div class="spinner"></div>
+                                        <span>読み込み中...</span>
+                                    </div>
+                                    <template v-else>
+                                        <div v-if="getCommentsForPost(ex.id, 'exchange').length === 0"
+                                            class="no-comments">
+                                            まだコメントはありません</div>
+                                        <div v-else class="comment-item"
+                                            v-for="comment in getCommentsForPost(ex.id, 'exchange')" :key="comment.id">
+                                            <div class="comment-header">
+                                                <span class="comment-author">{{ comment.displayName }}</span>
+                                                <span class="comment-time">{{ formatTime(comment.createdAt) }}</span>
+                                            </div>
+                                            <div class="comment-content">{{ comment.content }}</div>
                                         </div>
-                                        <div class="comment-content">{{ comment.content }}</div>
-                                    </div>
-                                    <div class="comment-input-area">
-                                        <input type="text" class="comment-input"
-                                            v-model="commentInputs[ex.id + '_exchange']" placeholder="コメントを入力..."
-                                            @keyup.enter="submitComment(ex.id, 'exchange')">
-                                        <button class="comment-submit" @click="submitComment(ex.id, 'exchange')"
-                                            :disabled="!commentInputs[ex.id + '_exchange'] || commentSubmitting[ex.id + '_exchange']">{{
-                                            commentSubmitting[ex.id + '_exchange'] ? '送信中...' : '送信' }}</button>
-                                    </div>
+                                        <div class="comment-input-area">
+                                            <input type="text" class="comment-input"
+                                                v-model="commentInputs[ex.id + '_exchange']" placeholder="コメントを入力..."
+                                                @keyup.enter="submitComment(ex.id, 'exchange')">
+                                            <button class="comment-submit" @click="submitComment(ex.id, 'exchange')"
+                                                :disabled="!commentInputs[ex.id + '_exchange'] || commentSubmitting[ex.id + '_exchange']">{{
+                                                commentSubmitting[ex.id + '_exchange'] ? '送信中...' : '送信' }}</button>
+                                        </div>
+                                    </template>
                                 </div>
                             </div>
                         </div>
@@ -1281,24 +1289,32 @@
                                     ? getCommentCount(req.id, 'request') + '件のコメント' : 'コメントする' }}
                                 </div>
                                 <div class="comments-list" v-if="expandedComments[req.id + '_request']">
-                                    <div v-if="getCommentsForPost(req.id, 'request').length === 0" class="no-comments">
-                                        まだコメントはありません</div>
-                                    <div v-else class="comment-item"
-                                        v-for="comment in getCommentsForPost(req.id, 'request')" :key="comment.id">
-                                        <div class="comment-header">
-                                            <span class="comment-author">{{ comment.displayName }}</span>
-                                            <span class="comment-time">{{ formatTime(comment.createdAt) }}</span>
+                                    <!-- ローディング表示 -->
+                                    <div v-if="commentLoading[req.id + '_request']" class="comment-loading">
+                                        <div class="spinner"></div>
+                                        <span>読み込み中...</span>
+                                    </div>
+                                    <template v-else>
+                                        <div v-if="getCommentsForPost(req.id, 'request').length === 0"
+                                            class="no-comments">
+                                            まだコメントはありません</div>
+                                        <div v-else class="comment-item"
+                                            v-for="comment in getCommentsForPost(req.id, 'request')" :key="comment.id">
+                                            <div class="comment-header">
+                                                <span class="comment-author">{{ comment.displayName }}</span>
+                                                <span class="comment-time">{{ formatTime(comment.createdAt) }}</span>
+                                            </div>
+                                            <div class="comment-content">{{ comment.content }}</div>
                                         </div>
-                                        <div class="comment-content">{{ comment.content }}</div>
-                                    </div>
-                                    <div class="comment-input-area">
-                                        <input type="text" class="comment-input"
-                                            v-model="commentInputs[req.id + '_request']" placeholder="コメントを入力..."
-                                            @keyup.enter="submitComment(req.id, 'request')">
-                                        <button class="comment-submit" @click="submitComment(req.id, 'request')"
-                                            :disabled="!commentInputs[req.id + '_request'] || commentSubmitting[req.id + '_request']">{{
-                                            commentSubmitting[req.id + '_request'] ? '送信中...' : '送信' }}</button>
-                                    </div>
+                                        <div class="comment-input-area">
+                                            <input type="text" class="comment-input"
+                                                v-model="commentInputs[req.id + '_request']" placeholder="コメントを入力..."
+                                                @keyup.enter="submitComment(req.id, 'request')">
+                                            <button class="comment-submit" @click="submitComment(req.id, 'request')"
+                                                :disabled="!commentInputs[req.id + '_request'] || commentSubmitting[req.id + '_request']">{{
+                                                commentSubmitting[req.id + '_request'] ? '送信中...' : '送信' }}</button>
+                                        </div>
+                                    </template>
                                 </div>
                             </div>
                         </div>

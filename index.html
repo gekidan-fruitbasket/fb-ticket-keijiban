@@ -1231,11 +1231,15 @@
                                     :class="ex.status === '募集中' ? 'status-active' : 'status-completed'">{{ ex.status
                                     }}</span>
                                 <button class="btn btn-small btn-outline"
-                                    @click="confirmAction('exchange', 'cancel', ex.id)"
-                                    v-if="ex.status === '募集中'">取消</button>
+                                    @click="confirmAction('exchange', 'cancel', ex.id)" v-if="ex.status === '募集中'"
+                                    :disabled="processingPostId === ex.id">
+                                    {{ processingPostId === ex.id ? '処理中...' : '取消' }}
+                                </button>
                                 <button class="btn btn-small btn-success"
-                                    @click="confirmAction('exchange', 'complete', ex.id)"
-                                    v-if="ex.status === '募集中'">成立</button>
+                                    @click="confirmAction('exchange', 'complete', ex.id)" v-if="ex.status === '募集中'"
+                                    :disabled="processingPostId === ex.id">
+                                    {{ processingPostId === ex.id ? '処理中...' : '成立' }}
+                                </button>
                             </div>
                             <!-- コメントセクション -->
                             <div class="comments-section">
@@ -1309,11 +1313,15 @@
                                     :class="req.status === '募集中' ? 'status-active' : 'status-completed'">{{ req.status
                                     }}</span>
                                 <button class="btn btn-small btn-outline"
-                                    @click="confirmAction('request', 'cancel', req.id)"
-                                    v-if="req.status === '募集中'">取消</button>
+                                    @click="confirmAction('request', 'cancel', req.id)" v-if="req.status === '募集中'"
+                                    :disabled="processingPostId === req.id">
+                                    {{ processingPostId === req.id ? '処理中...' : '取消' }}
+                                </button>
                                 <button class="btn btn-small btn-success"
-                                    @click="confirmAction('request', 'complete', req.id)"
-                                    v-if="req.status === '募集中'">成立</button>
+                                    @click="confirmAction('request', 'complete', req.id)" v-if="req.status === '募集中'"
+                                    :disabled="processingPostId === req.id">
+                                    {{ processingPostId === req.id ? '処理中...' : '成立' }}
+                                </button>
                             </div>
                             <!-- コメントセクション -->
                             <div class="comments-section">
@@ -1758,8 +1766,10 @@
                     desiredDate: '',
                     quantity: '',
                     seatType: '自由席',
-                    comment: ''
                 });
+
+                // 処理中の投稿ID（キャンセル/成立時）
+                const processingPostId = ref(null);
 
                 // Methods
                 const showToast = (message) => {
@@ -1960,6 +1970,7 @@
                 };
 
                 const cancelPost = async (type, postId) => {
+                    processingPostId.value = postId;
                     try {
                         await callApi('cancelPost', { type, postId, userId: userId.value });
                         showToast('取り消しました');
@@ -1967,9 +1978,11 @@
                     } catch (e) {
                         showToast('エラーが発生しました');
                     }
+                    processingPostId.value = null;
                 };
 
                 const completePost = async (type, postId) => {
+                    processingPostId.value = postId;
                     try {
                         await callApi('markCompleted', { type, postId, userId: userId.value });
                         showToast('成立しました！');
@@ -1977,6 +1990,7 @@
                     } catch (e) {
                         showToast('エラーが発生しました');
                     }
+                    processingPostId.value = null;
                 };
 
                 // Comment methods
@@ -2067,6 +2081,7 @@
                     activeTab,
                     submitting,
                     toast,
+                    processingPostId,
                     filterDate,
                     filteredExchanges,
                     filteredRequests,

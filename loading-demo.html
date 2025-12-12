@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ローディングアニメーション デモ v2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: linear-gradient(180deg, #87CEEB 0%, #E0F7FA 60%, #B2EBF2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        h2 {
+            margin-bottom: 30px;
+            color: #0077b6;
+        }
+
+        .demo-box {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 20px;
+            box-shadow: 0 10px 30px rgba(0, 119, 182, 0.15);
+            text-align: center;
+        }
+
+        .demo-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        /* ===== メインのローディングコンテナ ===== */
+        .loading-scene {
+            position: relative;
+            width: 280px;
+            height: 120px;
+            overflow: hidden;
+            border-radius: 12px;
+            background: linear-gradient(180deg, #87CEEB 0%, #B2EBF2 100%);
+        }
+
+        /* 雲（背景レイヤー - ゆっくり動く） */
+        .clouds {
+            position: absolute;
+            top: 10px;
+            left: 0;
+            width: 200%;
+            height: 30px;
+            animation: scrollClouds 8s linear infinite;
+        }
+
+        .cloud {
+            position: absolute;
+            font-size: 20px;
+            opacity: 0.7;
+        }
+
+        .cloud:nth-child(1) {
+            left: 10%;
+        }
+
+        .cloud:nth-child(2) {
+            left: 40%;
+        }
+
+        .cloud:nth-child(3) {
+            left: 70%;
+        }
+
+        .cloud:nth-child(4) {
+            left: 110%;
+        }
+
+        .cloud:nth-child(5) {
+            left: 140%;
+        }
+
+        .cloud:nth-child(6) {
+            left: 170%;
+        }
+
+        @keyframes scrollClouds {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        /* 地面（前景レイヤー - 速く動く） */
+        .ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 200%;
+            height: 35px;
+            background: linear-gradient(180deg, #f4d03f 0%, #c9a227 100%);
+            animation: scrollGround 2s linear infinite;
+        }
+
+        /* 地面の模様 */
+        .ground::before {
+            content: '🌾 🌻 🌾 🌿 🌾 🌻 🌾 🌿 🌾 🌻 🌾 🌿 🌾 🌻 🌾 🌿';
+            position: absolute;
+            top: 5px;
+            left: 0;
+            width: 200%;
+            font-size: 14px;
+            letter-spacing: 8px;
+            white-space: nowrap;
+        }
+
+        @keyframes scrollGround {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        /* ===== キャラクター（固定位置で足踏み） ===== */
+        .characters {
+            position: absolute;
+            bottom: 35px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+        /* 亀 - のそのそ動く */
+        .turtle {
+            font-size: 36px;
+            animation: turtleWalk 0.6s ease-in-out infinite;
+        }
+
+        @keyframes turtleWalk {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+
+            25% {
+                transform: translateY(-2px) rotate(-3deg);
+            }
+
+            75% {
+                transform: translateY(-2px) rotate(3deg);
+            }
+        }
+
+        /* 太郎 - てくてく歩く */
+        .taro {
+            font-size: 32px;
+            animation: taroWalk 0.4s ease-in-out infinite;
+        }
+
+        @keyframes taroWalk {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-6px);
+            }
+        }
+
+        /* ローディングテキスト */
+        .loading-text {
+            margin-top: 20px;
+            color: #0077b6;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .loading-text::after {
+            content: '';
+            animation: dots 1.5s infinite steps(1);
+        }
+
+        @keyframes dots {
+            0% {
+                content: '';
+            }
+
+            25% {
+                content: '.';
+            }
+
+            50% {
+                content: '..';
+            }
+
+            75%,
+            100% {
+                content: '...';
+            }
+        }
+
+        /* 補足テキスト */
+        .note {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #888;
+            max-width: 280px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>ローディングアニメーション v2</h2>
+
+    <div class="demo-box">
+        <div class="demo-title">背景スクロール + キャラクター足踏み</div>
+
+        <div class="loading-scene">
+            <!-- 雲レイヤー（遠景：ゆっくり） -->
+            <div class="clouds">
+                <span class="cloud">☁️</span>
+                <span class="cloud">☁️</span>
+                <span class="cloud">☁️</span>
+                <span class="cloud">☁️</span>
+                <span class="cloud">☁️</span>
+                <span class="cloud">☁️</span>
+            </div>
+
+            <!-- キャラクター（固定位置） -->
+            <div class="characters">
+                <span class="turtle">🐢</span>
+                <span class="taro">👦</span>
+            </div>
+
+            <!-- 地面レイヤー（前景：速く） -->
+            <div class="ground"></div>
+        </div>
+
+        <div class="loading-text">読み込み中</div>
+    </div>
+
+    <p class="note">
+        💡 <strong>ポイント：</strong>キャラクターは固定位置で足踏み、地面と雲が横にスクロールすることで「歩いている」ように見える（視差効果）
+    </p>
+
+</body>
+
+</html>

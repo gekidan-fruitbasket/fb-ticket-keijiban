@@ -109,25 +109,24 @@
             z-index: 100;
             border-bottom: 1px solid var(--card-border);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 74px;
-            /* ロゴ(50px) + padding考慮 */
         }
 
         .header h1,
         .header h2 {
             display: none;
+            /* ロゴ画像を使用するため非表示 */
         }
 
         .header-logo {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
             max-height: 50px;
             width: auto;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
         }
 
         .header-title {
@@ -962,8 +961,10 @@
 
         <!-- ヘッダー -->
         <header class="header" v-if="!loading">
-            <img src="./logo.png" alt="人魚姫 ロゴ" class="header-logo">
-            <span class="header-title">チケット掲示板</span>
+            <div class="header-content">
+                <img src="./logo.png" alt="人魚姫 ロゴ" class="header-logo">
+                <span class="header-title">チケット掲示板</span>
+            </div>
             <button class="header-icon-btn" @click="currentPage = 'guide'">
                 <i class="fa-solid fa-circle-info"></i>
             </button>

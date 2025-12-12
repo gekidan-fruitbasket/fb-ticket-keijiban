@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.2.4] - 2025-12-12
+
+### Reverted
+- **ヘッダーレイアウト切り戻し**: 左寄せレイアウト(v1.2.3)を、ロゴ・タイトル中央揃え(v1.2.2)の状態に戻しました
+
 ## [v1.2.3] - 2025-12-12
 
 ### Changed

@@ -1233,12 +1233,13 @@
                                 <button class="btn btn-small btn-outline"
                                     @click="confirmAction('exchange', 'cancel', ex.id)" v-if="ex.status === '募集中'"
                                     :disabled="processingPostId === ex.id">
-                                    {{ processingPostId === ex.id ? '処理中...' : '取消' }}
+                                    {{ processingPostId === ex.id && processingAction === 'cancel' ? '処理中...' : '取消' }}
                                 </button>
                                 <button class="btn btn-small btn-success"
                                     @click="confirmAction('exchange', 'complete', ex.id)" v-if="ex.status === '募集中'"
                                     :disabled="processingPostId === ex.id">
-                                    {{ processingPostId === ex.id ? '処理中...' : '成立' }}
+                                    {{ processingPostId === ex.id && processingAction === 'complete' ? '処理中...' : '成立'
+                                    }}
                                 </button>
                             </div>
                             <!-- コメントセクション -->
@@ -1315,12 +1316,13 @@
                                 <button class="btn btn-small btn-outline"
                                     @click="confirmAction('request', 'cancel', req.id)" v-if="req.status === '募集中'"
                                     :disabled="processingPostId === req.id">
-                                    {{ processingPostId === req.id ? '処理中...' : '取消' }}
+                                    {{ processingPostId === req.id && processingAction === 'cancel' ? '処理中...' : '取消' }}
                                 </button>
                                 <button class="btn btn-small btn-success"
                                     @click="confirmAction('request', 'complete', req.id)" v-if="req.status === '募集中'"
                                     :disabled="processingPostId === req.id">
-                                    {{ processingPostId === req.id ? '処理中...' : '成立' }}
+                                    {{ processingPostId === req.id && processingAction === 'complete' ? '処理中...' : '成立'
+                                    }}
                                 </button>
                             </div>
                             <!-- コメントセクション -->
@@ -1770,6 +1772,7 @@
 
                 // 処理中の投稿ID（キャンセル/成立時）
                 const processingPostId = ref(null);
+                const processingAction = ref(null); // 'cancel' or 'complete'
 
                 // Methods
                 const showToast = (message) => {
@@ -1971,6 +1974,7 @@
 
                 const cancelPost = async (type, postId) => {
                     processingPostId.value = postId;
+                    processingAction.value = 'cancel';
                     try {
                         await callApi('cancelPost', { type, postId, userId: userId.value });
                         showToast('取り消しました');
@@ -1979,10 +1983,12 @@
                         showToast('エラーが発生しました');
                     }
                     processingPostId.value = null;
+                    processingAction.value = null;
                 };
 
                 const completePost = async (type, postId) => {
                     processingPostId.value = postId;
+                    processingAction.value = 'complete';
                     try {
                         await callApi('markCompleted', { type, postId, userId: userId.value });
                         showToast('成立しました！');
@@ -1991,6 +1997,7 @@
                         showToast('エラーが発生しました');
                     }
                     processingPostId.value = null;
+                    processingAction.value = null;
                 };
 
                 // Comment methods
@@ -2082,6 +2089,7 @@
                     submitting,
                     toast,
                     processingPostId,
+                    processingAction,
                     filterDate,
                     filteredExchanges,
                     filteredRequests,

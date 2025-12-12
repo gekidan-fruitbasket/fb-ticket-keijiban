@@ -1546,9 +1546,44 @@
     </div>
 
     <script>
-        // ==================== 設定 ====================
-        const LIFF_ID = '2008683013-LVHYVRa1';
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbzfRXX7jpdWb4dLu-IjswMO-hN5ZpuVQhRcGuEo3gsvY0XjSi4E_7F_EDObr3Qr92QxuQ/exec';
+        // ==================== 環境設定 ====================
+        const ENV_CONFIG = {
+            production: {
+                LIFF_ID: '2008683013-LVHYVRa1',
+                GAS_URL: 'https://script.google.com/macros/s/AKfycbzfRXX7jpdWb4dLu-IjswMO-hN5ZpuVQhRcGuEo3gsvY0XjSi4E_7F_EDObr3Qr92QxuQ/exec'
+            },
+            development: {
+                LIFF_ID: '2008674913-WBprMFYa',
+                GAS_URL: 'https://script.google.com/macros/s/AKfycbyHF-yijb4aecqiUQYS0VHEjnzOrKQcBAEDf4XDOPDy81WQdlBORkekOTQlPAieJi58/exec'
+            }
+        };
+
+        // Vercel環境検知
+        function detectEnvironment() {
+            const hostname = window.location.hostname;
+            // 本番ドメイン: Vercelのメインドメイン（mainブランチのデプロイ先）
+            // fb-ticket-keijiban.vercel.app または カスタムドメイン
+            const productionHosts = [
+                'fb-ticket-keijiban.vercel.app',
+                // 将来カスタムドメインを設定する場合はここに追加
+            ];
+            if (productionHosts.includes(hostname)) {
+                return 'production';
+            }
+            // GitHub Pages（旧本番）も本番扱い
+            if (hostname.includes('github.io')) {
+                return 'production';
+            }
+            // それ以外（Vercel Preview URL, localhost等）は開発環境
+            return 'development';
+        }
+
+        const CURRENT_ENV = detectEnvironment();
+        const LIFF_ID = ENV_CONFIG[CURRENT_ENV].LIFF_ID;
+        const GAS_URL = ENV_CONFIG[CURRENT_ENV].GAS_URL;
+
+        console.log(`[ENV] Running in ${CURRENT_ENV} mode`);
+
 
         const { createApp, ref, onMounted } = Vue;
 

@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.2.1] - 2025-12-12
+
+### Fixed
+- **ヘッダーレイアウト**: インフォアイコンの垂直位置がずれていた問題を修正（中央揃え調整）
+
 ## [v1.2.0] - 2025-12-12
 
 ### Added

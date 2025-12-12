@@ -501,6 +501,9 @@ function postComment(data) {
 }
 
 // ==================== コメント通知 ====================
+// LIFF URL（環境に応じて変更が必要）
+const LIFF_URL = 'https://liff.line.me/2008683013-LVHYVRa1'; // 本番用LIFF URL
+
 function sendCommentNotifications(postId, postType, commenterUserId, commenterName, commentContent) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   
@@ -531,15 +534,18 @@ function sendCommentNotifications(postId, postType, commenterUserId, commenterNa
     }
   }
   
+  // ディープリンクURL
+  const deepLink = `${LIFF_URL}?postId=${postId}&postType=${postType}`;
+  
   // 投稿者に通知（自分自身へのコメントでなければ）
   if (postOwnerUserId && postOwnerUserId !== commenterUserId) {
-    const message = `🔔 ${commenterName}さんがあなたの投稿にコメントしました\n\n「${commentContent.substring(0, 50)}${commentContent.length > 50 ? '...' : ''}」`;
+    const message = `【チケット掲示板からのお知らせ】\n\n${commenterName}さんがあなたの投稿にコメントしました。\n\n「${commentContent.substring(0, 50)}${commentContent.length > 50 ? '...' : ''}」\n\n確認する:\n${deepLink}`;
     sendLineMessage(postOwnerUserId, message);
   }
   
   // 過去のコメント主にも通知
   previousCommenters.forEach(userId => {
-    const message = `💬 ${commenterName}さんが投稿に返信しました\n\n「${commentContent.substring(0, 50)}${commentContent.length > 50 ? '...' : ''}」`;
+    const message = `【チケット掲示板からのお知らせ】\n\n${commenterName}さんが投稿に返信しました。\n\n「${commentContent.substring(0, 50)}${commentContent.length > 50 ? '...' : ''}」\n\n確認する:\n${deepLink}`;
     sendLineMessage(userId, message);
   });
 }

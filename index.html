@@ -1917,7 +1917,7 @@
                     registering.value = false;
                 };
 
-                const submitExchange = async () => {
+                const processSubmitExchange = async () => {
                     submitting.value = true;
                     try {
                         await callApi('postExchange', {
@@ -1939,7 +1939,11 @@
                     submitting.value = false;
                 };
 
-                const submitRequest = async () => {
+                const submitExchange = () => {
+                    confirmAction('exchange', 'post_submit', null);
+                };
+
+                const processSubmitRequest = async () => {
                     submitting.value = true;
                     try {
                         await callApi('postRequest', {
@@ -1960,11 +1964,20 @@
                     submitting.value = false;
                 };
 
+                const submitRequest = () => {
+                    confirmAction('request', 'post_submit', null);
+                };
+
                 const confirmAction = (type, action, postId) => {
                     pendingConfirmAction.value = { type, action, postId };
-                    confirmModalMessage.value = action === 'cancel'
-                        ? 'この投稿を取り消しますか？'
-                        : 'この投稿を成立済みにしますか？';
+
+                    if (action === 'post_submit') {
+                        confirmModalMessage.value = 'この内容で投稿しますか？';
+                    } else {
+                        confirmModalMessage.value = action === 'cancel'
+                            ? 'この投稿を取り消しますか？'
+                            : 'この投稿を成立済みにしますか？';
+                    }
                     showConfirmModal.value = true;
                 };
 
@@ -1975,7 +1988,13 @@
                     showConfirmModal.value = false;
                     pendingConfirmAction.value = null;
 
-                    if (action === 'cancel') {
+                    if (action === 'post_submit') {
+                        if (type === 'exchange') {
+                            await processSubmitExchange();
+                        } else {
+                            await processSubmitRequest();
+                        }
+                    } else if (action === 'cancel') {
                         await cancelPost(type, postId);
                     } else if (action === 'complete') {
                         await completePost(type, postId);

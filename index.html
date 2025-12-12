@@ -139,6 +139,17 @@
             color: var(--secondary);
         }
 
+        .header-icon-btn {
+            position: absolute;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--secondary);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
         /* メインコンテンツ */
         .main {
             padding: 20px;
@@ -881,6 +892,58 @@
         .modal-actions .btn {
             flex: 1;
         }
+
+        .modal-actions .btn {
+            flex: 1;
+        }
+
+        /* 規約ボックス */
+        .terms-box {
+            text-align: left;
+            margin-bottom: 20px;
+            padding: 12px;
+            background: #f8f9fa;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+        }
+
+        .terms-box h4 {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: var(--secondary);
+            text-align: center;
+        }
+
+        .terms-content {
+            height: 120px;
+            overflow-y: auto;
+            font-size: 12px;
+            line-height: 1.5;
+            color: var(--text);
+            padding-right: 4px;
+        }
+
+        .terms-content p {
+            margin-bottom: 8px;
+        }
+
+        .terms-check {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        .terms-check input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--secondary);
+        }
     </style>
 </head>
 
@@ -904,6 +967,9 @@
                 <img src="./logo.png" alt="人魚姫 ロゴ" class="header-logo">
                 <span class="header-title">チケット掲示板</span>
             </div>
+            <button class="header-icon-btn" @click="currentPage = 'guide'">
+                <i class="fa-solid fa-circle-info"></i>
+            </button>
         </header>
 
         <!-- メインコンテンツ -->
@@ -1425,12 +1491,40 @@
         <div class="modal">
             <div class="modal-title">ようこそ！</div>
             <div class="modal-desc">
-                掲示板で使用する<br>表示名を登録してください
+                掲示板を使用する前に<br>利用規約を確認してください
             </div>
+
+            <div class="terms-box">
+                <h4>利用ガイド・規約</h4>
+                <div class="terms-content">
+                    <p><strong>1. はじめに</strong><br>
+                        本アプリは、劇団員および保護者の皆様が、手持ちのチケットや欲しいチケットについて情報交換を行うためのコミュニティ掲示板です。</p>
+                    <p><strong>2. 免責事項</strong><br>
+                        本アプリは情報のマッチングの場を提供するものであり、劇団がチケットの売買や譲渡を仲介・保証するものではありません。<br>
+                        <span
+                            class="text-danger">アプリ内での金銭のやり取り機能はありません。実際の受け渡しや精算に関するトラブルについては、劇団は一切の責任を負いかねますので、当事者間で責任を持って行ってください。</span>
+                    </p>
+                    <p><strong>3. 禁止事項</strong><br>
+                        ・営利目的の転売行為<br>
+                        ・誹謗中傷や攻撃的な発言<br>
+                        ・アプリの利用目的と関係のない雑談や書き込み<br>
+                        ・劇団の活動に支障をきたすような迷惑行為<br>
+                        ・個人情報の不適切な利用</p>
+                    <p><strong>4. 運営について</strong><br>
+                        悪質なコメントや不適切と判断された投稿は、運営（劇団）の判断により予告なく削除する場合があります。</p>
+                </div>
+            </div>
+
+            <label class="terms-check">
+                <input type="checkbox" v-model="agreementChecked">
+                <span>利用規約に同意する</span>
+            </label>
+
             <input type="text" class="modal-input" v-model="registerName" placeholder="表示名を入力" maxlength="20">
             <div class="modal-hint">※他のユーザーに表示されます</div>
-            <button class="modal-btn" @click="registerDisplayName" :disabled="!registerName.trim() || registering">
-                {{ registering ? '登録中...' : '登録する' }}
+            <button class="modal-btn" @click="registerDisplayName"
+                :disabled="!registerName.trim() || !agreementChecked || registering">
+                {{ registering ? '登録中...' : '登録して始める' }}
             </button>
         </div>
     </div>
@@ -1489,6 +1583,7 @@
                 const pendingConfirmAction = ref(null);
                 const editName = ref('');
                 const registering = ref(false);
+                const agreementChecked = ref(false);
 
                 // Data
                 const showDates = ref([
@@ -1874,6 +1969,7 @@
                     registering,
                     registerDisplayName,
                     updateDisplayName,
+                    agreementChecked,
                     // Confirm Modal
                     showConfirmModal,
                     confirmModalMessage,

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.2.0] - 2025-12-12
+
+### Added
+- **規約同意フロー**: 初回登録時に利用規約への同意を必須化（チェックボックス追加）
+- **ヘッダー導線**: 全画面共通のヘッダー右上に「利用ガイド」へのアクセスボタンを追加
+
 ## [v1.1.0] - 2025-12-12
 
 ### Added

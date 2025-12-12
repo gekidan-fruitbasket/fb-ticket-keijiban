@@ -1772,7 +1772,9 @@
 
                     if (page === 'mypage') {
                         console.log('[DeepLink] Opening My Page');
-                        currentPage.value = 'mypage';
+                        // マイページはホーム画面のタブなので、両方設定する
+                        currentPage.value = 'home';
+                        activeTab.value = 'mypage';
                         // URLパラメータをクリア（履歴を汚さない）
                         window.history.replaceState({}, document.title, window.location.pathname);
                     }
